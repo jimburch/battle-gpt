@@ -1,12 +1,21 @@
 import React, { useState, ChangeEvent } from "react";
 import Image from "next/image";
-import { Input } from "@chakra-ui/react";
+import { Input, Box } from "@chakra-ui/react";
+import { FormValues } from "@/app/page";
+import { FormikProps } from "formik";
 
-const FileInput: React.FC = () => {
+type FileInputProps<T = FormValues> = {
+  name: string;
+} & FormikProps<T>;
+
+const FileInput = <T extends FormValues>({
+  name,
+  setFieldValue,
+}: FileInputProps<T>) => {
   return (
-    <div>
+    <Box>
       <input type="file" accept="image/*" />
-    </div>
+    </Box>
   );
 };
 

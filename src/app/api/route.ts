@@ -40,7 +40,43 @@ export async function POST(req: NextRequest) {
     return NextResponse.error();
   }
 
-  console.log(data1, data2);
+  const playerOneUrl = `${DB_PROJECT_URL}/storage/v1/object/public/${data1.fullPath}`;
+  const playerTwoUrl = `${DB_PROJECT_URL}/storage/v1/object/public/${data2.fullPath}`;
+
+  console.log(playerOneUrl, playerTwoUrl);
+
+  const response = await openai.chat.completions.create({
+    model: "gpt-4o-mini",
+    messages: [
+      {
+        role: "user",
+        content: [
+          {
+            type: "text",
+            text: "Who would win between these two people in a fight? You must give an answer that picks one of the two people from the images given. Be creative with attributes that would make one person win over the other. Tell me how that winner would win.",
+          },
+          {
+            type: "image_url",
+            image_url: {
+              url: playerOneUrl,
+            },
+          },
+          {
+            type: "image_url",
+            image_url: {
+              url: playerTwoUrl,
+            },
+          },
+        ],
+      },
+    ],
+  });
+
+  if (!response) {
+    return NextResponse.error();
+  }
+
+  console.log(response.choices[0]);
 
   return NextResponse.json({ message: "Hello, world!" });
 }

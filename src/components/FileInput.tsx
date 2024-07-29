@@ -7,10 +7,16 @@ import { FormikProps } from "formik";
 type FileInputProps = {
   name: keyof FormValues;
   handleChange: FormikProps<FormValues>["handleChange"];
+  setFieldValue: FormikProps<FormValues>["setFieldValue"];
   values: FormValues;
 };
 
-const FileInput = ({ name, handleChange, values }: FileInputProps) => {
+const FileInput = ({
+  name,
+  handleChange,
+  values,
+  setFieldValue,
+}: FileInputProps) => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -21,14 +27,8 @@ const FileInput = ({ name, handleChange, values }: FileInputProps) => {
 
   const handleInputChange = (e: any) => {
     const file = e.target.files[0];
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      // Step 2: Update the Formik value with the base64 string
-      const base64String = reader.result as string;
-      setSelectedImage(base64String); // Step 3: Update the image preview
-      handleChange({ target: { name, value: base64String } }); // Use Formik's handleChange
-    };
-    reader.readAsDataURL(file);
+    setFieldValue(name, file);
+    setSelectedImage(URL.createObjectURL(file));
   };
 
   return (
@@ -40,7 +40,6 @@ const FileInput = ({ name, handleChange, values }: FileInputProps) => {
         ref={inputRef}
         accept="image/*"
         onChange={handleInputChange}
-        // value={values[name]}
         className="hidden"
       />
       <Image

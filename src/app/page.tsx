@@ -48,9 +48,19 @@ export default function Home() {
   async function handleClick(values: FormValues) {
     setIsLoading(true);
     setMessage("");
+
+    const formData = new FormData();
+
+    formData.append("playerOneName", values.playerOneName);
+    formData.append("playerTwoName", values.playerTwoName);
+    formData.append("playerOneImage", values.playerOneImage);
+    formData.append("playerTwoImage", values.playerTwoImage);
+
+    console.log(formData);
+
     const response = await fetch("/api", {
       method: "POST",
-      body: JSON.stringify(values),
+      body: formData,
     });
     const data = await response.json();
     console.log(data);

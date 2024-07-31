@@ -5,7 +5,6 @@ import { v4 as uuidv4 } from "uuid";
 
 const DB_PROJECT_URL = process.env.DB_PROJECT_URL as string;
 const DB_API_KEY = process.env.DB_API_KEY as string;
-// const DB_SERVICE_KEY = process.env.DB_SERVICE_KEY as string;
 
 const supabase = createClient(DB_PROJECT_URL, DB_API_KEY);
 
@@ -43,17 +42,20 @@ export async function POST(req: NextRequest) {
   const playerOneUrl = `${DB_PROJECT_URL}/storage/v1/object/public/${data1.fullPath}`;
   const playerTwoUrl = `${DB_PROJECT_URL}/storage/v1/object/public/${data2.fullPath}`;
 
-  console.log(playerOneUrl, playerTwoUrl);
-
   const response = await openai.chat.completions.create({
     model: "gpt-4o-mini",
+    response_format: { type: "json_object" },
     messages: [
+      {
+        role: "system",
+        content: `You are a judge in a fight contest between two people. Your job is to analyze the image of each fighter and determine who would win based on their physical attributes, fighting stance, and any other information you can gather from the images. You must pick a winner in every fight. Do not automatically pick a winner because they are male or bigger. Be creative and think outside the box. You must respond in valid JSON that follows this format: { "winner": [1 for the first image and 2 for the second image, use those two numbers only], "length_of_fight": [How long the fight lasted], "finishing_move": [How the winner won, be creative and use details from the images to draw this conclusion] }`,
+      },
       {
         role: "user",
         content: [
           {
             type: "text",
-            text: "Who would win between these two people in a fight? You must give an answer that picks one of the two people from the images given. Be creative with attributes that would make one person win over the other. Tell me how that winner would win.",
+            text: "Who would win between these two people in a fight? Respond using JSON.",
           },
           {
             type: "image_url",
@@ -76,7 +78,5 @@ export async function POST(req: NextRequest) {
     return NextResponse.error();
   }
 
-  console.log(response.choices[0]);
-
-  return NextResponse.json({ message: "Hello, world!" });
+  return NextResponse.json(response.choices[0]);
 }

@@ -73,15 +73,17 @@ export default function Home() {
       method: "POST",
       body: formData,
     });
+
     const data = await response.json();
     const parsedData = JSON.parse(data);
-    setIsLoading(false);
-    setMessage(parsedData);
 
-    if (!response.ok) {
+    if (!response.ok || !parsedData) {
       console.error("Error:", response.statusText);
       setIsLoading(false);
     }
+
+    setIsLoading(false);
+    setMessage(parsedData);
   }
 
   return (

@@ -2,8 +2,6 @@ import OpenAI from "openai";
 import { fightPrompt, generateImagePrompt } from "./prompts";
 
 interface GenerateOpenAiJsonProps {
-  playerOneName: string;
-  playerTwoName: string;
   playerOneImageUrl: string;
   playerTwoImageUrl: string;
 }
@@ -12,15 +10,12 @@ export interface OpenAiJsonResponse {
   winner: number;
   length_of_fight: string;
   finishing_move: string;
-  player_one_description: string;
-  player_two_description: string;
+  winning_fighter_description: string;
 }
 
 const openai = new OpenAI();
 
 export const generateOpenAiJSON = async ({
-  playerOneName,
-  playerTwoName,
   playerOneImageUrl,
   playerTwoImageUrl,
 }: GenerateOpenAiJsonProps) => {
@@ -68,7 +63,7 @@ export const generateFightImageUrl = async (openAiJson: OpenAiJsonResponse) => {
   const image = await openai.images.generate({
     model: "dall-e-3",
     prompt: imagePrompt,
-    size: "1792x1024",
+    size: "1024x1024",
     style: "vivid",
   });
 

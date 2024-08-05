@@ -25,8 +25,6 @@ export async function POST(req: NextRequest) {
   }
 
   const response = await generateOpenAiJSON({
-    playerOneName,
-    playerTwoName,
     playerOneImageUrl,
     playerTwoImageUrl,
   });

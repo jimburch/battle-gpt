@@ -1,11 +1,13 @@
 import React, { useRef, useState } from "react";
-import Image from "next/image";
-import { Box, Button } from "@chakra-ui/react";
+// import Image from "next/image";
+import { Box, Flex, Button, Image, Icon } from "@chakra-ui/react";
 import { FormValues } from "@/app/page";
 import { FormikProps } from "formik";
+import { GiBattleGear, GiBattleMech } from "react-icons/gi";
 
 type FileInputProps = {
   name: keyof FormValues;
+  isLoading: boolean;
   handleChange: FormikProps<FormValues>["handleChange"];
   setFieldValue: FormikProps<FormValues>["setFieldValue"];
   values: FormValues;
@@ -13,6 +15,7 @@ type FileInputProps = {
 
 const FileInput = ({
   name,
+  isLoading,
   handleChange,
   values,
   setFieldValue,
@@ -42,13 +45,33 @@ const FileInput = ({
         onChange={handleInputChange}
         className="hidden"
       />
-      <Image
-        src={selectedImage || ""}
-        alt="Player One"
-        width={200}
-        height={300}
-      />
-      <Button onClick={handleInputClick}>Choose Photo</Button>
+      <Flex
+        background="gray.100"
+        justifyContent="center"
+        alignItems="center"
+        height={400}
+        width={300}
+        borderRadius={5}
+        marginBottom={4}
+        overflow="hidden"
+      >
+        {selectedImage ? (
+          <Image
+            src={selectedImage || ""}
+            alt="Player One"
+            height="full"
+            objectFit="cover"
+          />
+        ) : (
+          <Icon
+            as={name === "playerOneImage" ? GiBattleGear : GiBattleMech}
+            boxSize={200}
+          />
+        )}
+      </Flex>
+      <Button width="full" onClick={handleInputClick} isDisabled={isLoading}>
+        Upload Photo
+      </Button>
     </Box>
   );
 };

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import {
+  Box,
   Button,
   Text,
   Input,
@@ -12,6 +13,7 @@ import {
   FormHelperText,
   Flex,
   VStack,
+  Image,
 } from "@chakra-ui/react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
@@ -24,9 +26,15 @@ export interface FormValues {
   playerTwoName: string;
 }
 
+export interface ParsedData {
+  winner: number;
+  length_of_fight: string;
+  finishing_move: string;
+}
+
 export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
-  const [message, setMessage] = useState("");
+  const [message, setMessage] = useState<ParsedData | null>();
 
   const formik = useFormik<FormValues>({
     initialValues: {
@@ -36,18 +44,23 @@ export default function Home() {
       playerTwoName: "",
     },
     validationSchema: Yup.object({
-      playerOneName: Yup.string().required("Required").max(10, "Too long"),
-      playerTwoName: Yup.string().required("Required"),
+      playerOneName: Yup.string()
+        .required("Name is Required")
+        .max(30, "Name is too long"),
+      playerTwoName: Yup.string()
+        .required("Name is Required")
+        .max(30, "Name is too long"),
+      playerOneImage: Yup.string().required("Player Image is Required"),
+      playerTwoImage: Yup.string().required("Player Image is Required"),
     }),
     onSubmit: async (values) => {
-      console.log(values);
       await handleClick(values);
     },
   });
 
   async function handleClick(values: FormValues) {
     setIsLoading(true);
-    setMessage("");
+    setMessage(null);
 
     const formData = new FormData();
 
@@ -56,29 +69,41 @@ export default function Home() {
     formData.append("playerOneImage", values.playerOneImage);
     formData.append("playerTwoImage", values.playerTwoImage);
 
-    console.log(formData);
-
     const response = await fetch("/api", {
       method: "POST",
       body: formData,
     });
     const data = await response.json();
-    console.log(data);
+    const parsedData = JSON.parse(data);
     setIsLoading(false);
-    // setMessage(data);
+    setMessage(parsedData);
+
+    if (!response.ok) {
+      console.error("Error:", response.statusText);
+      setIsLoading(false);
+    }
   }
 
   return (
     <main>
-      <Flex flexDirection="column" alignItems="center">
-        <Heading>Battle GPT</Heading>
-        <Text>{"Fight to the death (but not for real)."}</Text>
+      <Flex flexDirection="column" align="center">
+        <Box marginY={4}>
+          <Image src="/logo.png" alt="Logo" width={500} />
+        </Box>
         <form onSubmit={formik.handleSubmit}>
-          <Flex>
+          <Flex alignItems="center" gap={4}>
             <VStack>
-              <FormControl>
-                <FileInput name="playerOneImage" {...formik} />
-                <FormHelperText>Upload an image for Player One</FormHelperText>
+              <FormControl
+                isInvalid={
+                  !!formik.errors.playerOneImage &&
+                  formik.touched.playerOneImage
+                }
+              >
+                <FileInput
+                  name="playerOneImage"
+                  isLoading={isLoading}
+                  {...formik}
+                />
                 <FormErrorMessage>
                   {formik.errors.playerOneImage}
                 </FormErrorMessage>
@@ -87,6 +112,7 @@ export default function Home() {
                 isInvalid={
                   !!formik.errors.playerOneName && formik.touched.playerOneName
                 }
+                isDisabled={isLoading}
               >
                 <FormLabel htmlFor="playerOneName">Player One Name</FormLabel>
                 <Input
@@ -104,10 +130,20 @@ export default function Home() {
               </FormControl>
             </VStack>
 
+            <Image src="/versus.png" alt="VS" width={100} height={100} />
+
             <VStack>
-              <FormControl>
-                <FileInput name="playerTwoImage" {...formik} />
-                <FormHelperText>Upload an image for Player One</FormHelperText>
+              <FormControl
+                isInvalid={
+                  !!formik.errors.playerTwoImage &&
+                  formik.touched.playerTwoImage
+                }
+              >
+                <FileInput
+                  name="playerTwoImage"
+                  isLoading={isLoading}
+                  {...formik}
+                />
                 <FormErrorMessage>
                   {formik.errors.playerTwoImage}
                 </FormErrorMessage>
@@ -117,8 +153,9 @@ export default function Home() {
                 isInvalid={
                   !!formik.errors.playerTwoName && formik.touched.playerTwoName
                 }
+                isDisabled={isLoading}
               >
-                <FormLabel htmlFor="playerTwoName">Player One Name</FormLabel>
+                <FormLabel htmlFor="playerTwoName">Player Two Name</FormLabel>
                 <Input
                   id="playerTwoName"
                   name="playerTwoName"
@@ -135,10 +172,28 @@ export default function Home() {
             </VStack>
           </Flex>
 
-          <Button type="submit">Submit</Button>
+          <Flex width="full" justifyContent="center" paddingTop={8}>
+            <Button
+              type="submit"
+              width={200}
+              background="linear-gradient(to bottom right, yellow, red 40%, black)"
+              color="white"
+              _hover={{ opacity: 0.8 }}
+              _active={{ opacity: 0.6 }}
+              isLoading={isLoading}
+              loadingText="Fighting..."
+            >
+              Fight!
+            </Button>
+          </Flex>
         </form>
-        {isLoading && <Text>Loading...</Text>}
-        {/* {message && <Text>{message}</Text>} */}
+        {message && !isLoading && (
+          <Box>
+            <Text>{message.winner}</Text>
+            <Text>{message.length_of_fight}</Text>
+            <Text>{message.finishing_move}</Text>
+          </Box>
+        )}
       </Flex>
     </main>
   );

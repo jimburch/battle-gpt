@@ -4,6 +4,7 @@ import { generateFightImageUrl, generateOpenAiJSON } from "@/services/openai";
 import supabase from "@/utils/supabase";
 
 // export const runtime = "edge";
+export const dynamic = "force-dynamic"; // static by default, unless reading the request
 
 export interface PostResponse {
   textResponse: {

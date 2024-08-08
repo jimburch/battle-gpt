@@ -1,6 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 import { uploadFiletoSupabase } from "@/services/supabase";
 import { generateFightImageUrl, generateOpenAiJSON } from "@/services/openai";
+import supabase from "@/utils/supabase";
+
+export interface PostResponse {
+  textResponse: {
+    winner: string;
+    length_of_fight: string;
+    finishing_move: string;
+    winning_fighter_description: string;
+  };
+  imageResponse: {
+    revised_prompt: string;
+    url: string;
+  };
+}
 
 export async function POST(req: NextRequest) {
   const formData = await req.formData();
@@ -9,6 +23,8 @@ export async function POST(req: NextRequest) {
   const playerTwoName = formData.get("playerTwoName") as string;
   const playerOneImage = formData.get("playerOneImage") as File;
   const playerTwoImage = formData.get("playerTwoImage") as File;
+
+  const channel = supabase.channel("progress-updates");
 
   const playerOneImageUrl = await uploadFiletoSupabase({
     playerName: playerOneName,
@@ -20,23 +36,42 @@ export async function POST(req: NextRequest) {
     playerImage: playerTwoImage,
   });
 
+  channel.send({
+    type: "broadcast",
+    event: "test",
+    payload: { message: "images_uploaded" },
+  });
+
   if (!playerOneImageUrl || !playerTwoImageUrl) {
+    supabase.removeChannel(channel);
     return NextResponse.error();
   }
 
-  const response = await generateOpenAiJSON({
+  const textResponse = await generateOpenAiJSON({
     playerOneImageUrl,
     playerTwoImageUrl,
   });
 
-  console.log(response);
+  channel.send({
+    type: "broadcast",
+    event: "test",
+    payload: { message: "fight_json_generated" },
+  });
 
-  if (!response) {
+  if (!textResponse) {
+    supabase.removeChannel(channel);
     return NextResponse.error();
   }
 
-  const imageReponse = await generateFightImageUrl(JSON.parse(response));
-  console.log(imageReponse);
+  const parsedTextResponse = JSON.parse(textResponse);
 
-  return NextResponse.json(response);
+  const imageResponse = await generateFightImageUrl(parsedTextResponse);
+
+  if (!imageResponse) {
+    supabase.removeChannel(channel);
+    return NextResponse.error();
+  }
+
+  supabase.removeChannel(channel);
+  return NextResponse.json({ textResponse: parsedTextResponse, imageResponse });
 }

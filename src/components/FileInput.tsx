@@ -61,6 +61,7 @@ const FileInput = ({
             alt="Player One"
             height="full"
             objectFit="cover"
+            opacity={isLoading ? 0.5 : 1}
           />
         ) : (
           <Icon

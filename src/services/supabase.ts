@@ -1,17 +1,14 @@
-import { createClient } from "@supabase/supabase-js";
+import supabase from "@/utils/supabase";
 import sharp from "sharp";
 import slugify from "slugify";
 import { v4 as uuidv4 } from "uuid";
+
+const DB_PROJECT_URL = process.env.NEXT_PUBLIC_DB_PROJECT_URL as string;
 
 interface UploadFiletoSupabaseProps {
   playerName: string;
   playerImage: File;
 }
-
-const DB_PROJECT_URL = process.env.DB_PROJECT_URL as string;
-const DB_API_KEY = process.env.DB_API_KEY as string;
-
-const supabase = createClient(DB_PROJECT_URL, DB_API_KEY);
 
 export const uploadFiletoSupabase = async ({
   playerName,

@@ -1,4 +1,4 @@
-import OpenAI from "openai";
+import { openai } from "@/utils/openai";
 import { fightPrompt, generateImagePrompt } from "./prompts";
 
 interface GenerateOpenAiJsonProps {
@@ -12,8 +12,6 @@ export interface OpenAiJsonResponse {
   finishing_move: string;
   winning_fighter_description: string;
 }
-
-const openai = new OpenAI();
 
 export const generateOpenAiJSON = async ({
   playerOneImageUrl,
@@ -71,5 +69,5 @@ export const generateFightImageUrl = async (openAiJson: OpenAiJsonResponse) => {
     throw new Error();
   }
 
-  return image.data;
+  return image.data[0];
 };

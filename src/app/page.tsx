@@ -22,6 +22,7 @@ import { PostResponse } from "./api/route";
 import Winner from "@/components/Winner";
 import supabase from "@/utils/supabase";
 import { v4 as uuidv4 } from "uuid";
+import { GiPunchBlast } from "react-icons/gi";
 
 export interface FormValues {
   playerOneImage: string;
@@ -157,7 +158,13 @@ export default function Home() {
               finishingMove={message.textResponse.finishing_move}
             />
             <HStack>
-              <Button onClick={handleReset}>New Fight</Button>
+              <Button
+                leftIcon={<GiPunchBlast />}
+                size="lg"
+                onClick={handleReset}
+              >
+                New Fight
+              </Button>
             </HStack>
           </Flex>
         ) : (
@@ -176,6 +183,7 @@ export default function Home() {
                 paddingRight={5}
                 borderRadius={5}
                 overflow="hidden"
+                boxShadow="lg"
               >
                 <Image src="/wrestling.gif" alt="Wrestling" width={100} />
                 <Heading size="md">{status}</Heading>

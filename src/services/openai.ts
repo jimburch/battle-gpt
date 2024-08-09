@@ -58,11 +58,11 @@ export const generateOpenAiJSON = async ({
       } else {
         throw err;
       }
-
-      if (!response) {
-        throw new Error();
-      }
     });
+
+  if (!response) {
+    throw new Error();
+  }
 
   return response.choices[0].message.content;
 };

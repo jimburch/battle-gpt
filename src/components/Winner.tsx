@@ -22,9 +22,8 @@ const Winner = ({
       gap={10}
     >
       <Flex direction="column" width={500} gap={2} justify="center">
-        <Heading>{name}</Heading>
-        <Text>{`Length of fight: ${lengthOfFight}`}</Text>
-        <Text>{`Finishing move: ${finishingMove}`}</Text>
+        <Heading size="3xl">{`${name}!`}</Heading>
+        <Text fontSize="xl">{`Finishing move: ${finishingMove}`}</Text>
       </Flex>
       <Image src={imageUrl} alt={name} height={400} />
     </Flex>

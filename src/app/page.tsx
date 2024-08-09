@@ -55,10 +55,13 @@ export default function Home() {
         (payload) => {
           switch (payload.payload.message) {
             case "images_uploaded":
-              setStatus("Fight commencing...");
+              setStatus("Punches punching, kicks kicking...");
               break;
             case "fight_json_generated":
-              setStatus("Deciding victory...");
+              setStatus("The final round...");
+              setTimeout(() => {
+                setStatus("We have a winner!");
+              }, 6000);
               break;
             default:
               break;
@@ -91,7 +94,6 @@ export default function Home() {
       playerTwoImage: Yup.string().required("Player Image is Required"),
     }),
     onSubmit: async (values) => {
-      setStatus("Analysing fighters...");
       await handleClick(values);
     },
   });
@@ -99,6 +101,7 @@ export default function Home() {
   async function handleClick(values: FormValues) {
     setIsLoading(true);
     setMessage(null);
+    setStatus("Sizing up the competition...");
 
     const formData = new FormData();
 
@@ -164,14 +167,20 @@ export default function Home() {
             justify="center"
             position="relative"
           >
-            <Center
-              position="absolute"
-              top={40}
-              zIndex={1}
-              display={status ?? "none"}
-            >
-              <Heading>{status}</Heading>
-            </Center>
+            {status && (
+              <Center
+                position="absolute"
+                top={40}
+                zIndex={1}
+                background="white"
+                paddingRight={5}
+                borderRadius={5}
+                overflow="hidden"
+              >
+                <Image src="/wrestling.gif" alt="Wrestling" width={100} />
+                <Heading size="md">{status}</Heading>
+              </Center>
+            )}
             <form onSubmit={formik.handleSubmit}>
               <Flex
                 alignItems="center"

@@ -52,6 +52,7 @@ export async function POST(req: NextRequest) {
     playerOneImageUrl,
     playerTwoImageUrl,
   });
+  console.log(textResponse);
 
   channel.send({
     type: "broadcast",
@@ -67,6 +68,7 @@ export async function POST(req: NextRequest) {
   const parsedTextResponse = JSON.parse(textResponse);
 
   const imageResponse = await generateFightImageUrl(parsedTextResponse);
+  console.log(imageResponse);
 
   if (!imageResponse) {
     supabase.removeChannel(channel);

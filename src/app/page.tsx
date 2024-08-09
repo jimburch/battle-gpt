@@ -4,17 +4,16 @@ import { useState, useEffect } from "react";
 import {
   Box,
   Button,
-  Text,
   Input,
   Heading,
   FormControl,
   FormLabel,
   FormErrorMessage,
-  FormHelperText,
   Flex,
   VStack,
   Image,
   HStack,
+  Center,
 } from "@chakra-ui/react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
@@ -22,6 +21,7 @@ import FileInput from "@/components/FileInput";
 import { PostResponse } from "./api/route";
 import Winner from "@/components/Winner";
 import supabase from "@/utils/supabase";
+import { v4 as uuidv4 } from "uuid";
 
 export interface FormValues {
   playerOneImage: string;
@@ -39,18 +39,20 @@ export interface ParsedData {
 export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState<PostResponse | null>();
-  const [status, setStatus] = useState<string | null>(null);
+  const [status, setStatus] = useState("");
+  const [channelIdState, setChannelIdState] = useState("");
 
   useEffect(() => {
+    const channelId = uuidv4();
+    setChannelIdState(channelId);
     const channel = supabase
-      .channel("progress-updates")
+      .channel(channelId)
       .on(
         "broadcast",
         {
           event: "test",
         },
         (payload) => {
-          console.log(payload.payload.message);
           switch (payload.payload.message) {
             case "images_uploaded":
               setStatus("Fight commencing...");
@@ -67,6 +69,7 @@ export default function Home() {
 
     return () => {
       supabase.removeChannel(channel);
+      setStatus("");
     };
   }, []);
 
@@ -88,8 +91,8 @@ export default function Home() {
       playerTwoImage: Yup.string().required("Player Image is Required"),
     }),
     onSubmit: async (values) => {
-      await handleClick(values);
       setStatus("Analysing fighters...");
+      await handleClick(values);
     },
   });
 
@@ -99,6 +102,7 @@ export default function Home() {
 
     const formData = new FormData();
 
+    formData.append("channelId", channelIdState);
     formData.append("playerOneName", values.playerOneName);
     formData.append("playerTwoName", values.playerTwoName);
     formData.append("playerOneImage", values.playerOneImage);
@@ -132,6 +136,7 @@ export default function Home() {
   const handleReset = () => {
     formik.resetForm();
     setMessage(null);
+    setStatus("");
   };
 
   return (
@@ -150,13 +155,30 @@ export default function Home() {
             />
             <HStack>
               <Button onClick={handleReset}>New Fight</Button>
-              <Button>Share</Button>
             </HStack>
           </Flex>
         ) : (
-          <Flex flexDirection="column" align="center">
+          <Flex
+            flexDirection="column"
+            align="center"
+            justify="center"
+            position="relative"
+          >
+            <Center
+              position="absolute"
+              top={40}
+              zIndex={1}
+              display={status ?? "none"}
+            >
+              <Heading>{status}</Heading>
+            </Center>
             <form onSubmit={formik.handleSubmit}>
-              <Flex alignItems="center" gap={4}>
+              <Flex
+                alignItems="center"
+                gap={4}
+                opacity={isLoading ? 0.1 : 1}
+                position="relative"
+              >
                 <VStack>
                   <FormControl
                     isInvalid={
@@ -252,7 +274,7 @@ export default function Home() {
                   _hover={{ opacity: 0.8 }}
                   _active={{ opacity: 0.6 }}
                   isLoading={isLoading}
-                  loadingText={status}
+                  loadingText="Fighting..."
                 >
                   Fight!
                 </Button>

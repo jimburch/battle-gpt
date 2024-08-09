@@ -3,9 +3,6 @@ import { uploadFiletoSupabase } from "@/services/supabase";
 import { generateFightImageUrl, generateOpenAiJSON } from "@/services/openai";
 import supabase from "@/utils/supabase";
 
-// export const runtime = "edge";
-export const dynamic = "force-dynamic"; // static by default, unless reading the request
-
 export interface PostResponse {
   textResponse: {
     winner: string;
@@ -22,12 +19,13 @@ export interface PostResponse {
 export async function POST(req: NextRequest) {
   const formData = await req.formData();
 
+  const channelId = formData.get("channelId") as string;
   const playerOneName = formData.get("playerOneName") as string;
   const playerTwoName = formData.get("playerTwoName") as string;
   const playerOneImage = formData.get("playerOneImage") as File;
   const playerTwoImage = formData.get("playerTwoImage") as File;
 
-  const channel = supabase.channel("progress-updates");
+  const channel = supabase.channel(channelId);
 
   const playerOneImageUrl = await uploadFiletoSupabase({
     playerName: playerOneName,

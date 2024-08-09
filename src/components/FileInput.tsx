@@ -1,6 +1,5 @@
 import React, { useRef, useState } from "react";
-// import Image from "next/image";
-import { Box, Flex, Button, Image, Icon } from "@chakra-ui/react";
+import { Box, Flex, Button, Icon, Image } from "@chakra-ui/react";
 import { FormValues } from "@/app/page";
 import { FormikProps } from "formik";
 import { GiBattleGear, GiBattleMech } from "react-icons/gi";
@@ -13,13 +12,7 @@ type FileInputProps = {
   values: FormValues;
 };
 
-const FileInput = ({
-  name,
-  isLoading,
-  handleChange,
-  values,
-  setFieldValue,
-}: FileInputProps) => {
+const FileInput = ({ name, isLoading, setFieldValue }: FileInputProps) => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -59,9 +52,9 @@ const FileInput = ({
           <Image
             src={selectedImage || ""}
             alt="Player One"
-            height="full"
+            height={400}
+            width={300}
             objectFit="cover"
-            opacity={isLoading ? 0.5 : 1}
           />
         ) : (
           <Icon

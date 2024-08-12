@@ -61,7 +61,7 @@ export default function Home() {
             case "fight_json_generated":
               setStatus("The final round...");
               setTimeout(() => {
-                setStatus("We have a winner!");
+                setStatus("Crowning a champion...");
               }, 6000);
               break;
             default:

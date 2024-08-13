@@ -14,9 +14,9 @@ export interface OpenAiJsonResponse {
 }
 
 const NODE_ENV = process.env.VERCEL_ENV;
-const OPENAI_TEXT_MODEL = NODE_ENV === "development" ? "gpt-4o-mini" : "gpt-4o";
-const OPENAI_IMAGE_MODEL = "dall-e-3";
-const OPENAI_IMAGE_DETAIL = NODE_ENV === "development" ? "low" : "auto";
+const OPENAI_TEXT_MODEL = "gpt-4o-mini";
+const OPENAI_IMAGE_MODEL = NODE_ENV === "development" ? "dall-e-2" : "dall-e-3";
+const OPENAI_IMAGE_DETAIL = "low";
 
 export const generateOpenAiJSON = async ({
   playerOneImageUrl,

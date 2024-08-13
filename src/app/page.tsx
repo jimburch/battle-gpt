@@ -14,6 +14,7 @@ import {
   Image,
   HStack,
   Center,
+  Text,
 } from "@chakra-ui/react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
@@ -147,10 +148,20 @@ export default function Home() {
 
   return (
     <main>
-      <Flex direction="column" width="full" align="center">
-        <Box marginY={4}>
-          <Image src="/logo.png" alt="Logo" width={500} />
-        </Box>
+      <Flex direction="column" width="full" align="center" paddingY={6}>
+        <Flex
+          paddingBottom={4}
+          direction="column"
+          align="center"
+          textAlign="center"
+          paddingX={10}
+        >
+          <Image src="/logo.png" alt="Logo" width={{ base: 350, md: 500 }} />
+          <Text>
+            Head-to-head combat, judged by OpenAI. Upload photos to see who
+            would win in a fight.
+          </Text>
+        </Flex>
         {message ? (
           <Flex direction="column" align="center" gap={10}>
             <Winner
@@ -197,6 +208,9 @@ export default function Home() {
                 gap={4}
                 opacity={isLoading ? 0.1 : 1}
                 position="relative"
+                direction={{ base: "column", md: "row" }}
+                height={{ base: status ? 415 : "100%", md: "100%" }}
+                overflow={status ? "hidden" : "visible"}
               >
                 <VStack>
                   <FormControl
@@ -221,13 +235,10 @@ export default function Home() {
                     }
                     isDisabled={isLoading}
                   >
-                    <FormLabel htmlFor="playerOneName">
-                      Player One Name
-                    </FormLabel>
                     <Input
                       id="playerOneName"
                       name="playerOneName"
-                      placeholder="Player One..."
+                      placeholder="Player One Name..."
                       type="text"
                       onChange={formik.handleChange}
                       onBlur={formik.handleBlur}
@@ -239,7 +250,11 @@ export default function Home() {
                   </FormControl>
                 </VStack>
 
-                <Image src="/versus.png" alt="VS" width={100} height={100} />
+                <Image
+                  src="/versus.png"
+                  alt="VS"
+                  width={{ base: 75, md: 100 }}
+                />
 
                 <VStack>
                   <FormControl
@@ -265,13 +280,10 @@ export default function Home() {
                     }
                     isDisabled={isLoading}
                   >
-                    <FormLabel htmlFor="playerTwoName">
-                      Player Two Name
-                    </FormLabel>
                     <Input
                       id="playerTwoName"
                       name="playerTwoName"
-                      placeholder="Player Two..."
+                      placeholder="Player Two Name..."
                       type="text"
                       onChange={formik.handleChange}
                       onBlur={formik.handleBlur}
@@ -287,7 +299,8 @@ export default function Home() {
               <Flex width="full" justifyContent="center" paddingTop={8}>
                 <Button
                   type="submit"
-                  width={200}
+                  size="lg"
+                  width={{ base: 350, md: 200 }}
                   background="linear-gradient(to bottom right, yellow, red 40%, black)"
                   color="white"
                   _hover={{ opacity: 0.8 }}

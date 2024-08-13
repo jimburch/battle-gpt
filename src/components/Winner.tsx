@@ -1,5 +1,4 @@
-import { Flex, Heading, Text } from "@chakra-ui/react";
-import Image from "next/image";
+import { Flex, Heading, Text, Image } from "@chakra-ui/react";
 
 interface WinnerProps {
   name: string;
@@ -8,33 +7,32 @@ interface WinnerProps {
   finishingMove: string;
 }
 
-const Winner = ({
-  name,
-  imageUrl,
-  lengthOfFight,
-  finishingMove,
-}: WinnerProps) => {
+const Winner = ({ name, imageUrl, finishingMove }: WinnerProps) => {
   return (
     <Flex
-      direction="row"
-      width={800}
+      direction={{ base: "column-reverse", md: "row" }}
+      width={{ base: "100%", md: 800 }}
       justifyContent="space-evenly"
       alignItems="center"
       gap={10}
-      boxShadow="lg"
-      padding={8}
+      boxShadow={{ base: "none", md: "lg" }}
+      padding={{ base: 0, md: 8 }}
     >
-      <Flex direction="column" width={500} gap={2} justify="center">
+      <Flex
+        direction="column"
+        width={{ base: 375, md: "50%" }}
+        gap={2}
+        justify="center"
+        textAlign="center"
+      >
         <Heading size="3xl">{`${name}!`}</Heading>
         <Text fontSize="xl">{`Finishing move: ${finishingMove}`}</Text>
       </Flex>
       <Image
         src={imageUrl}
         alt={name}
-        height={400}
-        width={400}
-        placeholder="blur"
-        blurDataURL="./placeholder.webp"
+        height={{ base: 375, md: 400 }}
+        width={{ base: 375, md: 400 }}
       />
     </Flex>
   );

@@ -42,8 +42,8 @@ const FileInput = ({ name, isLoading, setFieldValue }: FileInputProps) => {
         background="gray.100"
         justifyContent="center"
         alignItems="center"
-        height={400}
-        width={300}
+        height={350}
+        width={350}
         borderRadius={5}
         marginBottom={4}
         overflow="hidden"
@@ -63,7 +63,12 @@ const FileInput = ({ name, isLoading, setFieldValue }: FileInputProps) => {
           />
         )}
       </Flex>
-      <Button width="full" onClick={handleInputClick} isDisabled={isLoading}>
+      <Button
+        width="full"
+        onClick={handleInputClick}
+        isDisabled={isLoading}
+        size="lg"
+      >
         Upload Photo
       </Button>
     </Box>

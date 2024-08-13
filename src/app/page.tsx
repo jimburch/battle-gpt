@@ -120,8 +120,10 @@ export default function Home() {
     const data = await response.json();
 
     if (!response.ok || !data) {
-      console.error("Error:", response.statusText);
       setIsLoading(false);
+      setMessage(null);
+      setStatus("");
+      throw new Error(response.statusText);
     }
 
     setIsLoading(false);

@@ -3,6 +3,8 @@ import sharp from "sharp";
 import slugify from "slugify";
 import { v4 as uuidv4 } from "uuid";
 
+const NODE_ENV = process.env.VERCEL_ENV;
+const DB_BUCKET = NODE_ENV === "development" ? "images_dev" : "images";
 const DB_PROJECT_URL = process.env.NEXT_PUBLIC_DB_PROJECT_URL as string;
 
 interface UploadFiletoSupabaseProps {
@@ -20,7 +22,7 @@ export const uploadFiletoSupabase = async ({
   const playerImageBuffer = await playerImage.arrayBuffer();
   const playerImagePng = await sharp(Buffer.from(playerImageBuffer))
     .rotate()
-    .resize({ height: 400 })
+    .resize({ height: 600 })
     .png({
       compressionLevel: 9,
       adaptiveFiltering: true,
@@ -29,7 +31,7 @@ export const uploadFiletoSupabase = async ({
     .toBuffer();
 
   const { data, error } = await supabase.storage
-    .from("images")
+    .from(DB_BUCKET)
     .upload(`${playerImageName}.png`, playerImagePng, {
       cacheControl: "3600",
       upsert: false,

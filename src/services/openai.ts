@@ -1,5 +1,4 @@
 import { openai } from "@/utils/openai";
-import { APIError } from "openai";
 import { fightPrompt, generateImagePrompt } from "./prompts";
 
 interface GenerateOpenAiJsonProps {
@@ -14,51 +13,48 @@ export interface OpenAiJsonResponse {
   winning_fighter_description: string;
 }
 
+const NODE_ENV = process.env.VERCEL_ENV;
+const OPENAI_TEXT_MODEL = NODE_ENV === "development" ? "gpt-4o-mini" : "gpt-4o";
+const OPENAI_IMAGE_MODEL = "dall-e-3";
+const OPENAI_IMAGE_DETAIL = NODE_ENV === "development" ? "low" : "auto";
+
 export const generateOpenAiJSON = async ({
   playerOneImageUrl,
   playerTwoImageUrl,
 }: GenerateOpenAiJsonProps) => {
-  const response: any = await openai.chat.completions
-    .create({
-      model: "gpt-4o-mini",
-      response_format: { type: "json_object" },
-      messages: [
-        {
-          role: "system",
-          content: fightPrompt,
-        },
-        {
-          role: "user",
-          content: [
-            {
-              type: "text",
-              text: "Who would win between these two people in a fight? Respond using JSON.",
+  const response: any = await openai.chat.completions.create({
+    model: OPENAI_TEXT_MODEL,
+    response_format: { type: "json_object" },
+    messages: [
+      {
+        role: "system",
+        content: fightPrompt,
+      },
+      {
+        role: "user",
+        content: [
+          {
+            type: "text",
+            text: "Who would win between these two people in a fight? Respond using JSON.",
+          },
+          {
+            type: "image_url",
+            image_url: {
+              url: playerOneImageUrl,
+              detail: OPENAI_IMAGE_DETAIL,
             },
-            {
-              type: "image_url",
-              image_url: {
-                url: playerOneImageUrl,
-              },
+          },
+          {
+            type: "image_url",
+            image_url: {
+              url: playerTwoImageUrl,
+              detail: OPENAI_IMAGE_DETAIL,
             },
-            {
-              type: "image_url",
-              image_url: {
-                url: playerTwoImageUrl,
-              },
-            },
-          ],
-        },
-      ],
-    })
-    .catch(async (err) => {
-      if (err instanceof APIError) {
-        console.log(err.status); // 400
-        console.log(err.name); // BadRequestError
-        console.log(err.headers); // {server: 'nginx', ...}
-      } else {
-        throw err;
-      }
-    });
+          },
+        ],
+      },
+    ],
+  });
 
   if (!response) {
     throw new Error();
@@ -70,10 +66,9 @@ export const generateOpenAiJSON = async ({
 export const generateFightImageUrl = async (openAiJson: OpenAiJsonResponse) => {
   const imagePrompt = generateImagePrompt(openAiJson);
   const image = await openai.images.generate({
-    model: "dall-e-3",
+    model: OPENAI_IMAGE_MODEL,
     prompt: imagePrompt,
     size: "1024x1024",
-    style: "vivid",
   });
 
   if (!image) {

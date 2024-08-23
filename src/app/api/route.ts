@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { uploadFiletoSupabase } from "@/services/supabase";
+import { saveFightToSupabase, uploadFiletoSupabase } from "@/services/supabase";
 import { generateFightImageUrl, generateOpenAiJSON } from "@/services/openai";
 import supabase from "@/utils/supabase";
 
@@ -73,6 +73,25 @@ export async function POST(req: NextRequest) {
     return NextResponse.error();
   }
 
+  const winningFighterName =
+    parsedTextResponse.winner === "1" ? playerOneName : playerTwoName;
+
+  const savedFight = await saveFightToSupabase({
+    player_one_name: playerOneName,
+    player_one_img_url: playerOneImageUrl,
+    player_two_name: playerTwoName,
+    player_two_img_url: playerTwoImageUrl,
+    winner: winningFighterName,
+    winner_description: parsedTextResponse.winning_fighter_description,
+    length_of_fight: parsedTextResponse.length_of_fight,
+    winning_move: parsedTextResponse.finishing_move,
+    fight_img_url: imageResponse.url,
+  });
+
   supabase.removeChannel(channel);
-  return NextResponse.json({ textResponse: parsedTextResponse, imageResponse });
+  return NextResponse.json({
+    textResponse: parsedTextResponse,
+    imageResponse,
+    savedFight,
+  });
 }

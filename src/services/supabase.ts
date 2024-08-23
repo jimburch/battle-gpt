@@ -12,6 +12,25 @@ interface UploadFiletoSupabaseProps {
   playerImage: File;
 }
 
+interface FightData {
+  player_one_name: string;
+  player_one_img_url: string;
+  player_two_name: string;
+  player_two_img_url: string;
+  winner: string;
+  winner_description: string;
+  length_of_fight: string;
+  winning_move: string;
+  fight_img_url: string | undefined;
+}
+
+interface FightDataRecord extends FightData {
+  id: number;
+  uuid: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export const uploadFiletoSupabase = async ({
   playerName,
   playerImage,
@@ -43,4 +62,18 @@ export const uploadFiletoSupabase = async ({
   }
 
   return `${DB_PROJECT_URL}/storage/v1/object/public/${data.fullPath}`;
+};
+
+export const saveFightToSupabase = async (fightData: FightData) => {
+  const { data, error } = await supabase
+    .from("fights")
+    .insert([fightData])
+    .select();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  console.log(data);
+  return data[0] as FightDataRecord;
 };

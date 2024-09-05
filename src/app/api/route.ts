@@ -10,6 +10,9 @@ export interface PostResponse {
     length_of_fight: string;
     finishing_move: string;
     winning_fighter_description: string;
+    element: string;
+    damage_given: string;
+    damage_taken: string;
   };
   imageResponse: {
     revised_prompt: string;
@@ -99,6 +102,9 @@ export async function POST(req: NextRequest) {
     length_of_fight: parsedTextResponse.length_of_fight,
     winning_move: parsedTextResponse.finishing_move,
     fight_img_url: winningFighterImage,
+    element: parsedTextResponse.element,
+    damage_given: parsedTextResponse.damage_given,
+    damage_taken: parsedTextResponse.damage_taken,
     slug: battleSlug,
     env: NODE_ENV,
   });

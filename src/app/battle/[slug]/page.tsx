@@ -9,11 +9,15 @@ import { IoIosWater } from "react-icons/io";
 import { FaRegSnowflake, FaHeart } from "react-icons/fa";
 import { LuSwords } from "react-icons/lu";
 import { RiFlipHorizontal2Fill } from "react-icons/ri";
+import { IoCopyOutline } from "react-icons/io5";
+
+import Link from "next/link";
 
 export default function Page({ params }: { params: { slug: string } }) {
   const [fightData, setFightData] = useState<FightDataRecord>();
   const [isLoading, setIsLoading] = useState(true);
   const [cardFront, setCardFront] = useState(true);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     const fetchFightData = async () => {
@@ -37,6 +41,65 @@ export default function Page({ params }: { params: { slug: string } }) {
     fetchFightData();
   }, [params.slug]);
 
+  const copyUrlToClipboard = (): void => {
+    const currentUrl = window.location.href;
+
+    navigator.clipboard.writeText(currentUrl).then(() => {
+      setCopied(true);
+      setTimeout(() => {
+        setCopied(false);
+      }, 2000);
+    });
+  };
+
+  const renderDamageIcons = () => {
+    const IconComponent = {
+      fire: RiFireFill,
+      water: IoIosWater,
+      ice: FaRegSnowflake,
+    }[fightData?.element || ""];
+
+    if (!IconComponent) return null;
+
+    const damageCount = parseInt(fightData?.damage_given || "0", 10);
+    const coloredCount = Math.min(Math.max(damageCount, 0), 5);
+
+    const icons = Array(5)
+      .fill(0)
+      .map((_, index) => {
+        const props =
+          index < coloredCount
+            ? { color: getElementColor(fightData?.element) }
+            : { color: "gray" };
+        return <IconComponent key={index} {...props} />;
+      });
+
+    return icons;
+  };
+
+  const getElementColor = (element?: string): string => {
+    const colors: { [key: string]: string } = {
+      fire: "orange",
+      water: "cyan",
+      ice: "white",
+    };
+    return colors[element || ""] || "gray";
+  };
+
+  const renderHealthIcons = () => {
+    const damageCount = parseInt(fightData?.damage_given || "0", 10);
+    const coloredCount = Math.min(Math.max(damageCount, 0), 5);
+
+    const icons = Array(5)
+      .fill(0)
+      .map((_, index) => {
+        const color = index < coloredCount ? "red" : "gray";
+        return <FaHeart key={index} color={color} />;
+      });
+
+    return icons;
+  };
+
   if (isLoading) return <Spinner />;
 
   return (
@@ -47,7 +110,6 @@ export default function Page({ params }: { params: { slug: string } }) {
         bg="navy"
         borderRadius={5}
         width={400}
-        // height={700}
         padding={4}
         color="gray.100"
         border="8px solid"
@@ -66,16 +128,8 @@ export default function Page({ params }: { params: { slug: string } }) {
               width={375}
             />
             <Flex justify="space-between">
-              <Flex gap={1}>
-                <RiFireFill color="orange" />
-                <RiFireFill />
-                <RiFireFill />
-              </Flex>
-              <Flex gap={1}>
-                <FaHeart color="red" />
-                <FaHeart />
-                <FaHeart />
-              </Flex>
+              <Flex gap={1}>{renderDamageIcons()}</Flex>
+              <Flex gap={1}>{renderHealthIcons()}</Flex>
             </Flex>
             <Text>{`Defeats opponents in ${fightData?.length_of_fight} mins`}</Text>
             <Text>{fightData?.winning_move}</Text>
@@ -119,8 +173,12 @@ export default function Page({ params }: { params: { slug: string } }) {
         </Button>
       </Flex>
       <Flex gap={2}>
-        <Button>Copy</Button>
-        <Button>New Fight</Button>
+        <Button leftIcon={<IoCopyOutline />} onClick={copyUrlToClipboard}>
+          {copied ? "Copied" : "Copy"}
+        </Button>
+        <Button as={Link} href="/">
+          New Fight
+        </Button>
       </Flex>
     </Flex>
   );

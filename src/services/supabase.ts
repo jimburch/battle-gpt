@@ -8,8 +8,8 @@ const DB_BUCKET = NODE_ENV === "development" ? "images_dev" : "images";
 const DB_PROJECT_URL = process.env.NEXT_PUBLIC_DB_PROJECT_URL as string;
 
 interface UploadFiletoSupabaseProps {
-  playerName: string;
-  playerImage: File;
+  imageName: string;
+  playerImage: File | string;
 }
 
 interface FightData {
@@ -34,13 +34,26 @@ export interface FightDataRecord extends FightData {
 }
 
 export const uploadFiletoSupabase = async ({
-  playerName,
+  imageName,
   playerImage,
 }: UploadFiletoSupabaseProps) => {
-  const playerNameSlug = slugify(playerName, { lower: true });
-  const playerImageName = `${playerNameSlug}-${uuidv4()}`;
+  const imageNameSlug = slugify(imageName, { lower: true });
+  const playerImageName = `${imageNameSlug}-${uuidv4()}`;
 
-  const playerImageBuffer = await playerImage.arrayBuffer();
+  let playerImageBuffer: ArrayBuffer;
+
+  if (typeof playerImage === "string") {
+    console.log("is this a string?");
+    const response = await fetch(playerImage);
+    if (!response.ok) {
+      throw new Error("Failed to fetch image from URL");
+    }
+    playerImageBuffer = await response.arrayBuffer();
+  } else {
+    console.log("is this a file?");
+    playerImageBuffer = await playerImage.arrayBuffer();
+  }
+
   const playerImagePng = await sharp(Buffer.from(playerImageBuffer))
     .rotate()
     .resize({ height: 600 })

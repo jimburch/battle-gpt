@@ -31,12 +31,12 @@ export async function POST(req: NextRequest) {
   const channel = supabase.channel(channelId);
 
   const playerOneImageUrl = await uploadFiletoSupabase({
-    playerName: playerOneName,
+    imageName: playerOneName,
     playerImage: playerOneImage,
   });
 
   const playerTwoImageUrl = await uploadFiletoSupabase({
-    playerName: playerTwoName,
+    imageName: playerTwoName,
     playerImage: playerTwoImage,
   });
 
@@ -76,12 +76,18 @@ export async function POST(req: NextRequest) {
     return NextResponse.error();
   }
 
-  console.log(parsedTextResponse);
-
   const winningFighterName =
     parsedTextResponse.winner === 1 ? playerOneName : playerTwoName;
 
   const battleSlug = nanoid();
+
+  let winningFighterImage;
+  if (imageResponse.url) {
+    winningFighterImage = await uploadFiletoSupabase({
+      imageName: winningFighterName,
+      playerImage: imageResponse.url,
+    });
+  }
 
   const savedFight = await saveFightToSupabase({
     player_one_name: playerOneName,
@@ -92,7 +98,7 @@ export async function POST(req: NextRequest) {
     winner_description: parsedTextResponse.winning_fighter_description,
     length_of_fight: parsedTextResponse.length_of_fight,
     winning_move: parsedTextResponse.finishing_move,
-    fight_img_url: imageResponse.url,
+    fight_img_url: winningFighterImage,
     slug: battleSlug,
     env: NODE_ENV,
   });

@@ -22,9 +22,11 @@ interface FightData {
   length_of_fight: string;
   winning_move: string;
   fight_img_url: string | undefined;
+  slug: string;
+  env: string;
 }
 
-interface FightDataRecord extends FightData {
+export interface FightDataRecord extends FightData {
   id: number;
   uuid: string;
   created_at: string;

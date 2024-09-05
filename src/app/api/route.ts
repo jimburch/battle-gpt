@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { saveFightToSupabase, uploadFiletoSupabase } from "@/services/supabase";
 import { generateFightImageUrl, generateOpenAiJSON } from "@/services/openai";
 import supabase from "@/utils/supabase";
+import { nanoid } from "nanoid";
 
 export interface PostResponse {
   textResponse: {
@@ -15,6 +16,8 @@ export interface PostResponse {
     url: string;
   };
 }
+
+const NODE_ENV = process.env.VERCEL_ENV || "development";
 
 export async function POST(req: NextRequest) {
   const formData = await req.formData();
@@ -73,8 +76,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.error();
   }
 
+  console.log(parsedTextResponse);
+
   const winningFighterName =
-    parsedTextResponse.winner === "1" ? playerOneName : playerTwoName;
+    parsedTextResponse.winner === 1 ? playerOneName : playerTwoName;
+
+  const battleSlug = nanoid();
 
   const savedFight = await saveFightToSupabase({
     player_one_name: playerOneName,
@@ -86,6 +93,8 @@ export async function POST(req: NextRequest) {
     length_of_fight: parsedTextResponse.length_of_fight,
     winning_move: parsedTextResponse.finishing_move,
     fight_img_url: imageResponse.url,
+    slug: battleSlug,
+    env: NODE_ENV,
   });
 
   supabase.removeChannel(channel);

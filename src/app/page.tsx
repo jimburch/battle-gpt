@@ -10,18 +10,15 @@ import {
   Flex,
   VStack,
   Image,
-  HStack,
   Center,
-  Text,
 } from "@chakra-ui/react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import FileInput from "@/components/FileInput";
 import { PostResponse } from "./api/route";
-import Winner from "@/components/Winner";
 import supabase from "@/utils/supabase";
 import { v4 as uuidv4 } from "uuid";
-import { GiPunchBlast } from "react-icons/gi";
+import { useRouter } from "next/navigation";
 
 export interface FormValues {
   playerOneImage: string;
@@ -41,6 +38,7 @@ export default function Home() {
   const [message, setMessage] = useState<PostResponse | null>();
   const [status, setStatus] = useState("");
   const [channelIdState, setChannelIdState] = useState("");
+  const router = useRouter();
 
   useEffect(() => {
     const channelId = uuidv4();
@@ -126,16 +124,7 @@ export default function Home() {
     }
 
     setIsLoading(false);
-    setMessage({
-      ...data,
-      textResponse: {
-        ...data.textResponse,
-        winner:
-          data.textResponse.winner === 1
-            ? values.playerOneName
-            : values.playerTwoName,
-      },
-    });
+    router.push(`/battle/${data.savedFight.slug}`);
   }
 
   const handleReset = () => {
@@ -146,172 +135,131 @@ export default function Home() {
 
   return (
     <main>
-      <Flex direction="column" width="full" align="center" paddingY={6}>
-        <Flex
-          paddingBottom={4}
-          direction="column"
-          align="center"
-          textAlign="center"
-          paddingX={10}
-        >
-          <Image src="/logo.png" alt="Logo" width={{ base: 350, md: 500 }} />
-          <Text>
-            Head-to-head combat, judged by OpenAI. Upload photos to see who
-            would win in a fight.
-          </Text>
-        </Flex>
-        {message ? (
-          <Flex direction="column" align="center" gap={10}>
-            <Winner
-              name={message.textResponse.winner}
-              imageUrl={message.imageResponse.url}
-              lengthOfFight={message.textResponse.length_of_fight}
-              finishingMove={message.textResponse.finishing_move}
-            />
-            <HStack>
-              <Button
-                leftIcon={<GiPunchBlast />}
-                size="lg"
-                onClick={handleReset}
-              >
-                New Fight
-              </Button>
-            </HStack>
-          </Flex>
-        ) : (
-          <Flex
-            flexDirection="column"
-            align="center"
-            justify="center"
-            position="relative"
+      <Flex
+        flexDirection="column"
+        align="center"
+        justify="center"
+        position="relative"
+      >
+        {status && (
+          <Center
+            position="absolute"
+            top={40}
+            zIndex={1}
+            background="white"
+            paddingRight={5}
+            borderRadius={5}
+            overflow="hidden"
+            boxShadow="lg"
           >
-            {status && (
-              <Center
-                position="absolute"
-                top={40}
-                zIndex={1}
-                background="white"
-                paddingRight={5}
-                borderRadius={5}
-                overflow="hidden"
-                boxShadow="lg"
-              >
-                <Image src="/wrestling.gif" alt="Wrestling" width={100} />
-                <Heading size="md">{status}</Heading>
-              </Center>
-            )}
-            <form onSubmit={formik.handleSubmit}>
-              <Flex
-                alignItems="center"
-                gap={4}
-                opacity={isLoading ? 0.1 : 1}
-                position="relative"
-                direction={{ base: "column", md: "row" }}
-                height={{ base: status ? 415 : "100%", md: "100%" }}
-                overflow={status ? "hidden" : "visible"}
-              >
-                <VStack>
-                  <FormControl
-                    isInvalid={
-                      !!formik.errors.playerOneImage &&
-                      formik.touched.playerOneImage
-                    }
-                  >
-                    <FileInput
-                      name="playerOneImage"
-                      isLoading={isLoading}
-                      {...formik}
-                    />
-                    <FormErrorMessage>
-                      {formik.errors.playerOneImage}
-                    </FormErrorMessage>
-                  </FormControl>
-                  <FormControl
-                    isInvalid={
-                      !!formik.errors.playerOneName &&
-                      formik.touched.playerOneName
-                    }
-                    isDisabled={isLoading}
-                  >
-                    <Input
-                      id="playerOneName"
-                      name="playerOneName"
-                      placeholder="Player One Name..."
-                      type="text"
-                      onChange={formik.handleChange}
-                      onBlur={formik.handleBlur}
-                      value={formik.values.playerOneName}
-                    />
-                    <FormErrorMessage>
-                      {formik.errors.playerOneName}
-                    </FormErrorMessage>
-                  </FormControl>
-                </VStack>
-
-                <Image
-                  src="/versus.png"
-                  alt="VS"
-                  width={{ base: 75, md: 100 }}
-                />
-
-                <VStack>
-                  <FormControl
-                    isInvalid={
-                      !!formik.errors.playerTwoImage &&
-                      formik.touched.playerTwoImage
-                    }
-                  >
-                    <FileInput
-                      name="playerTwoImage"
-                      isLoading={isLoading}
-                      {...formik}
-                    />
-                    <FormErrorMessage>
-                      {formik.errors.playerTwoImage}
-                    </FormErrorMessage>
-                  </FormControl>
-
-                  <FormControl
-                    isInvalid={
-                      !!formik.errors.playerTwoName &&
-                      formik.touched.playerTwoName
-                    }
-                    isDisabled={isLoading}
-                  >
-                    <Input
-                      id="playerTwoName"
-                      name="playerTwoName"
-                      placeholder="Player Two Name..."
-                      type="text"
-                      onChange={formik.handleChange}
-                      onBlur={formik.handleBlur}
-                      value={formik.values.playerTwoName}
-                    />
-                    <FormErrorMessage>
-                      {formik.errors.playerTwoName}
-                    </FormErrorMessage>
-                  </FormControl>
-                </VStack>
-              </Flex>
-
-              <Flex width="full" justifyContent="center" paddingTop={8}>
-                <Button
-                  type="submit"
-                  size="lg"
-                  width={{ base: 350, md: 200 }}
-                  background="linear-gradient(to bottom right, yellow, red 40%, black)"
-                  color="white"
-                  _hover={{ opacity: 0.8 }}
-                  _active={{ opacity: 0.6 }}
-                  isLoading={isLoading}
-                  loadingText="Fighting..."
-                >
-                  Fight!
-                </Button>
-              </Flex>
-            </form>
-          </Flex>
+            <Image src="/wrestling.gif" alt="Wrestling" width={100} />
+            <Heading size="md">{status}</Heading>
+          </Center>
         )}
+        <form onSubmit={formik.handleSubmit}>
+          <Flex
+            alignItems="center"
+            gap={4}
+            opacity={isLoading ? 0.1 : 1}
+            position="relative"
+            direction={{ base: "column", md: "row" }}
+            height={{ base: status ? 415 : "100%", md: "100%" }}
+            overflow={status ? "hidden" : "visible"}
+          >
+            <VStack>
+              <FormControl
+                isInvalid={
+                  !!formik.errors.playerOneImage &&
+                  formik.touched.playerOneImage
+                }
+              >
+                <FileInput
+                  name="playerOneImage"
+                  isLoading={isLoading}
+                  {...formik}
+                />
+                <FormErrorMessage>
+                  {formik.errors.playerOneImage}
+                </FormErrorMessage>
+              </FormControl>
+              <FormControl
+                isInvalid={
+                  !!formik.errors.playerOneName && formik.touched.playerOneName
+                }
+                isDisabled={isLoading}
+              >
+                <Input
+                  id="playerOneName"
+                  name="playerOneName"
+                  placeholder="Player One Name..."
+                  type="text"
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  value={formik.values.playerOneName}
+                />
+                <FormErrorMessage>
+                  {formik.errors.playerOneName}
+                </FormErrorMessage>
+              </FormControl>
+            </VStack>
+
+            <Image src="/versus.png" alt="VS" width={{ base: 75, md: 100 }} />
+
+            <VStack>
+              <FormControl
+                isInvalid={
+                  !!formik.errors.playerTwoImage &&
+                  formik.touched.playerTwoImage
+                }
+              >
+                <FileInput
+                  name="playerTwoImage"
+                  isLoading={isLoading}
+                  {...formik}
+                />
+                <FormErrorMessage>
+                  {formik.errors.playerTwoImage}
+                </FormErrorMessage>
+              </FormControl>
+
+              <FormControl
+                isInvalid={
+                  !!formik.errors.playerTwoName && formik.touched.playerTwoName
+                }
+                isDisabled={isLoading}
+              >
+                <Input
+                  id="playerTwoName"
+                  name="playerTwoName"
+                  placeholder="Player Two Name..."
+                  type="text"
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  value={formik.values.playerTwoName}
+                />
+                <FormErrorMessage>
+                  {formik.errors.playerTwoName}
+                </FormErrorMessage>
+              </FormControl>
+            </VStack>
+          </Flex>
+
+          <Flex width="full" justifyContent="center" paddingTop={8}>
+            <Button
+              type="submit"
+              size="lg"
+              width={{ base: 350, md: 200 }}
+              background="linear-gradient(to bottom right, yellow, red 40%, black)"
+              color="white"
+              _hover={{ opacity: 0.8 }}
+              _active={{ opacity: 0.6 }}
+              isLoading={isLoading}
+              loadingText="Fighting..."
+            >
+              Fight!
+            </Button>
+          </Flex>
+        </form>
       </Flex>
     </main>
   );
